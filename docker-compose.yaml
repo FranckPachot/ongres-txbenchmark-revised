@@ -1,10 +1,17 @@
 services:
 
-  bench-mongo:
+  bench:
    build: .
-   command: java -jar benchmark.jar --benchmark-target=mongo --target-database-host=${COMPOSE_PROJECT_NAME}-mongo-1 --target-database-name=test --target-database-password='' --target-database-port=27017 --target-database-user=''
+   command: |
+      bash -xc '
+      echo "PostgreSQL"
+      java -jar benchmark.jar --benchmark-target=postgres ${BENCH_OPTIONS} --target-database-host=${COMPOSE_PROJECT_NAME}-postgres-1 --target-database-name=postgres --target-database-password="postgres" --target-database-port=5432  --target-database-user="postgres"
+      echo "MongoDB"
+      java -jar benchmark.jar --benchmark-target=mongo    ${BENCH_OPTIONS} --target-database-host=${COMPOSE_PROJECT_NAME}-mongo-1    --target-database-name=test     --target-database-password=""         --target-database-port=27017 --target-database-user=""
+      '
    depends_on: 
     - mongo
+    - postgres
 
   mongo:
     image: mongo
@@ -26,8 +33,19 @@ services:
          rs.initiate( {_id: \"rs0\", members: [
           {_id: 0, priority: 3, host: \"${COMPOSE_PROJECT_NAME}-mongo-1:27017\"},
           {_id: 1, priority: 2, host: \"${COMPOSE_PROJECT_NAME}-mongo-2:27017\"},
-          {_id: 2, priority: 1, host: \"${COMPOSE_PROJECT_NAME}-mongo-3:27017\"}]
+          {_id: 2, priority: 1, host: \"${COMPOSE_PROJECT_NAME}-mongo-3:27017\"}
+          ]
          });
         "
       '
       
+# TODO: add two standbys to PostgreSQL
+
+  postgres:
+    image: postgres
+    expose:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+ 
