@@ -1,0 +1,4 @@
+services:
+  benchmark:
+    build: .
+    command: java -jar benchmark.jar --help
