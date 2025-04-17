@@ -3,4 +3,5 @@ FROM maven
 COPY txbenchmark /txbenchmark
 RUN cd /txbenchmark && mvn install -DskipTests=false
 RUN ln -s /txbenchmark/cli/target/benchmark-1.3.jar ./benchmark.jar
-CMD java -jar /txbenchmark/cli/target/benchmark-1.3.jar
+CMD ["java", "-jar", "/txbenchmark/cli/target/benchmark-1.3.jar"]  
+
