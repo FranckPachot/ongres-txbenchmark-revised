@@ -1,28 +1,12 @@
 ```
-git clone https://gitlab.com/ongresinc/txbenchmark.git
-docker compose up -d --build && docker compose logs bench -f
 
-docker compose exec -it mongo mongotop
-docker compose exec -it mongo mongostat
-
-``` 
-
-
-
-
+(
+    cd cli
+    mvn clean package
+    java -jar ./target/benchmark-1.3.jar -h
+)
+docker compose up -d
+docker compose logs bench -f
 
 ```
 
-mvn clean package
-
-
-
-mvn compile
-mvn clean package  
-
-mvn clean install  
-( cd cli  && mvn exec:java -Dexec.mainClass="com.ongres.benchmark.App")
-
-
-
-```
