@@ -21,7 +21,7 @@ services:
     command:
      mongod --bind_ip_all --replSet rs0
     deploy:
-      replicas: 3
+      replicas: 1  # define the replicaset accordingly to get a quorum
 
   mongo-init-replica-set:
     image: mongo
@@ -33,9 +33,9 @@ services:
         sleep 5
         mongosh --host mongo --eval "
          rs.initiate( {_id: \"rs0\", members: [
-          {_id: 0, priority: 3, host: \"${COMPOSE_PROJECT_NAME}-mongo-1:27017\"},
-          {_id: 1, priority: 2, host: \"${COMPOSE_PROJECT_NAME}-mongo-2:27017\"},
-          {_id: 2, priority: 1, host: \"${COMPOSE_PROJECT_NAME}-mongo-3:27017\"}
+             {_id: 0, priority: 3, host: \"${COMPOSE_PROJECT_NAME}-mongo-1:27017\"},
+          // {_id: 1, priority: 2, host: \"${COMPOSE_PROJECT_NAME}-mongo-2:27017\"},
+          // {_id: 2, priority: 1, host: \"${COMPOSE_PROJECT_NAME}-mongo-3:27017\"}
           ]
          });
         "
