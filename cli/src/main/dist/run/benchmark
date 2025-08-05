@@ -1,0 +1,5 @@
+#!/bin/sh
+
+LIB_PATH="$(dirname "$0")/../lib"
+
+exec java -cp "$LIB_PATH/benchmark-@{project.version}.jar" @{project.mainClass} "$@"
