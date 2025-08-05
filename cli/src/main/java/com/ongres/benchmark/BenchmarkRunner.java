@@ -45,17 +45,32 @@ public class BenchmarkRunner implements Runnable, AutoCloseable {
     transactionMeter.mark();
   }
 
-  private void runWithRetry() {
-    while (true) {
-      try {
-        benchmark.run();
-        break;
-      } catch (RetryUserOperationException ex) {
-        retryMeter.mark();
-        continue;
-      }
-    }
-  }
+private void runWithRetry() {  
+    final long initialDelayMillis = 5;      // start with 5ms  
+    final long maxDelayMillis = 1000;       // max wait of 1s  
+    long delay = initialDelayMillis;  
+
+    while (true) {  
+        try {  
+            benchmark.run();  
+            break;  
+        } catch (RetryUserOperationException ex) {  
+            retryMeter.mark();  
+            try {  
+                // jitter by up to 50% to avoid thundering herd  
+                long jitter = (long) (Math.random() * delay / 2);  
+                long sleep = delay + jitter;  
+                Thread.sleep(sleep);  
+            } catch (InterruptedException ie) {  
+                Thread.currentThread().interrupt();  
+                // Optionally log or handle interruption here  
+                throw new RuntimeException("Retry loop interrupted", ie);  
+            }  
+            delay = Math.min(delay * 2, maxDelayMillis);  
+            continue;  
+        }  
+    }  
+}  
 
   @Override
   public void close() throws Exception {
