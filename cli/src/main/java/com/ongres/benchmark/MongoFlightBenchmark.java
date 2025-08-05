@@ -158,6 +158,15 @@ public class MongoFlightBenchmark extends Benchmark {
     database.createCollection("seat");
     database.createCollection("payment");
     database.createCollection("audit");
+    MongoCollection<Document> audit = database.getCollection("audit");
+    
+    audit.createIndex(  
+                Indexes.compoundIndex(  
+                    Indexes.ascending("schedule_id"),  
+                    Indexes.ascending("day")  
+                )  
+            );  
+
   }
 
   private void userOperation() throws Exception {
