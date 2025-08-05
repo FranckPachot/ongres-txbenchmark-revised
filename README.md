@@ -1,3 +1,7 @@
+This is based on https://gitlab.com/ongresinc/txbenchmark with the following fixes:
+- exponential backof retries (see https://dev.to/franckpachot/transaction-performance-retry-with-backoff-12lm)
+- index on audit (original was doing a COLLSCAN)
+
 Example to run it:
 ```
 
