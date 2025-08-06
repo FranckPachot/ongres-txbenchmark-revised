@@ -1,9 +1,10 @@
 This is based on https://gitlab.com/ongresinc/txbenchmark with the following fixes:
-- exponential backof retries (see https://dev.to/franckpachot/transaction-performance-retry-with-backoff-12lm)
+- exponential backoff retry (see https://dev.to/franckpachot/transaction-performance-retry-with-backoff-12lm)
 - index on audit (original was doing a COLLSCAN)
-The two following improvement make little differences but exposes best practices:
+  
+Additionally, The two following improvements make little differences but expose best practices:
 - update audit first in the transaction (to detect conflict faster)
-- embed aircraft capacity into schedule as it is static
+- embed aircraft capacity into sthe chedule as it is static
 
 Example to run it:
 ```
@@ -17,18 +18,3 @@ docker compose up bench results
 
 
 ```
-
-Check collections:
-```
-docker compose exec -T mongo mongosh postgres <<< "show collections"
-```
-
-Create an index:
-```
-docker compose exec -it mongo mongosh
-use postgres;
-db.audit.getIndexes();
-db.audit.createIndex({schedule_id: 1, day: 1})  
-```
-
-
