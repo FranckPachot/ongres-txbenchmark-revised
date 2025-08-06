@@ -142,17 +142,31 @@ public class MongoFlightBenchmark extends Benchmark {
     database.createCollection("schedule");
     MongoCollection<Document> schedule = database.getCollection("schedule");
     AtomicInteger scheduleId = new AtomicInteger(0);
-    CSVParser.parse(
-        MongoFlightBenchmark.class.getResourceAsStream("/schedule.txt"), 
-        StandardCharsets.UTF_8, csvFormat
-        .withHeader("from_airport", "to_airport", "valid_from", "valid_until", "days",
-            "departure", "arrival", "flight", "aircraft", "duration"))
-        .forEach(record -> schedule.insertOne(new Document(
-            Stream.concat(
-                ImmutableMap.of("schedule_id", scheduleId.getAndIncrement()).entrySet().stream(),
-                record.toMap().entrySet().stream())
-            .filter(e -> e.getValue() != null)
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue())))));
+CSVParser.parse(  
+    MongoFlightBenchmark.class.getResourceAsStream("/schedule.txt"),  
+    StandardCharsets.UTF_8, csvFormat  
+        .withHeader("from_airport", "to_airport", "valid_from", "valid_until", "days",  
+            "departure", "arrival", "flight", "aircraft", "duration"))  
+    .forEach(record -> {  
+        Document scheduleDoc = new Document(  
+            Stream.concat(  
+                ImmutableMap.of("schedule_id", scheduleId.getAndIncrement()).entrySet().stream(),  
+                record.toMap().entrySet().stream()  
+            )  
+            .filter(e -> e.getValue() != null)  
+            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()))  
+        );  
+        // Denormalize: lookup aircraft capacity  
+        String aircraftIata = scheduleDoc.getString("aircraft");  
+        if (aircraftIata != null) {  
+            Document aircraftDoc = aircraft.find(Filters.eq("iata", aircraftIata)).first();  
+            if (aircraftDoc != null && aircraftDoc.get("capacity") != null) {  
+                // You can choose the field name  
+                scheduleDoc.append("aircraft_capacity", aircraftDoc.get("capacity"));  
+            }  
+        }  
+        schedule.insertOne(scheduleDoc);  
+    });  
     schedule.createIndex(Indexes.ascending("schedule_id"));
     logger.info("Creating seat, payment and audit");
     database.createCollection("seat");
@@ -236,15 +250,18 @@ public class MongoFlightBenchmark extends Benchmark {
     return schedules.first();
   }
 
-  private List<Bson> getUserScheduleAggregate() {
-    return Arrays.asList(
-        Aggregates.match(Filters.eq("schedule_id", randomScheduleId())),
-        Aggregates.lookup("aircraft", "aircraft", "iata", "aircraft"),
-        Aggregates.project(new Document()
-            .append("schedule_id", 1)
-            .append("duration", 1)
-            .append("capacity", "$aircraft.capacity")));
-  }
+  private List<Bson> getUserScheduleAggregate() {  
+    return Arrays.asList(  
+        Aggregates.match(Filters.eq("schedule_id", randomScheduleId())),  
+        //Aggregates.lookup("aircraft", "aircraft", "iata", "aircraft"),
+        Aggregates.project(new Document()  
+            .append("schedule_id", 1)  
+            .append("duration", 1)  
+            .append("capacity", "$aircraft_capacity") // Use the local field  
+            //.append("capacity", "$aircraft.capacity") // Use the lookup field
+        )
+    );  
+}  
 
   private void insertSeat(ClientSession session, Document userSchedule,
       Object userId, Timestamp currentTimestamp) {

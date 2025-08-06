@@ -1,7 +1,9 @@
 This is based on https://gitlab.com/ongresinc/txbenchmark with the following fixes:
 - exponential backof retries (see https://dev.to/franckpachot/transaction-performance-retry-with-backoff-12lm)
 - index on audit (original was doing a COLLSCAN)
+The two following improvement make little differences but exposes best practices:
 - update audit first in the transaction (to detect conflict faster)
+- embed aircraft capacity into schedule as it is static
 
 Example to run it:
 ```
