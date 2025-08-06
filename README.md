@@ -1,6 +1,7 @@
 This is based on https://gitlab.com/ongresinc/txbenchmark with the following fixes:
 - exponential backof retries (see https://dev.to/franckpachot/transaction-performance-retry-with-backoff-12lm)
 - index on audit (original was doing a COLLSCAN)
+- update audit first in the transaction (to detect conflict faster)
 
 Example to run it:
 ```
@@ -10,9 +11,7 @@ Example to run it:
     mvn clean package
     java -jar ./target/benchmark-1.3.jar -h
 )
-docker compose up bench mongo -d
-docker compose up bench mongo -d mongo-init-replica-set
-docker compose up bench 
+docker compose up bench results
 
 
 ```

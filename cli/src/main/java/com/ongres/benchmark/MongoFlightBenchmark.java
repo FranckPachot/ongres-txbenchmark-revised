@@ -187,9 +187,9 @@ public class MongoFlightBenchmark extends Benchmark {
         final Date day = Date.valueOf(LocalDate.now().plus(
             now.toEpochMilli() % config.getDayRange(), ChronoUnit.DAYS));
         TimeUnit.SECONDS.sleep(config.getBookingSleep());
+        insertAudit(session, userSchedule, day, currentTimestamp);
         insertSeat(session, userSchedule, userId, currentTimestamp);
         insertPayment(session, userSchedule, userId, currentTimestamp);
-        insertAudit(session, userSchedule, day, currentTimestamp);
         session.commitTransaction();
       } catch (Exception ex) {
         try {
