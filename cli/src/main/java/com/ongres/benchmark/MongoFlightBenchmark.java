@@ -35,6 +35,7 @@ import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.IndexOptions;  
 import com.ongres.benchmark.config.model.Config;
 
 import java.nio.charset.StandardCharsets;
@@ -175,11 +176,12 @@ CSVParser.parse(
     MongoCollection<Document> audit = database.getCollection("audit");
     
     audit.createIndex(  
-                Indexes.compoundIndex(  
-                    Indexes.ascending("schedule_id"),  
-                    Indexes.ascending("day")  
-                )  
-            );  
+        Indexes.compoundIndex(  
+            Indexes.ascending("schedule_id"),  
+            Indexes.ascending("day")  
+        ),  
+        new IndexOptions().unique(true)  
+    );  
 
   }
 
