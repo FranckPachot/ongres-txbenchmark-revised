@@ -24,7 +24,6 @@ Or simply run it in GitPod:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/FranckPachot/ongres-txbenchmark)
 
+<img width="1566" height="627" alt="image" src="https://github.com/user-attachments/assets/002ab962-64df-430b-ac81-49f3b2a99417" />
+
 Note that this is not a relevant benchmark for comparing databases and making decisions on which database to choose. Real applications do not execute transactions that involve external services, such as payment validation, between statements, always looking up the aircraft capacity which is static onece the schedule is set, or running all reservations on one date. Always test performance using your high availability infrastructure. This test provides an opportunity to showcase best practices for running transactions on MongoDB, as the original benchmark was missing some important ones, like correct retry logic for optimistic locking, and indexing the keys used to access a document.
-
-<img width="1550" height="263" alt="image" src="https://github.com/user-attachments/assets/0cd8764c-f5c7-428b-9783-5f4d17d7fc12" />
-
