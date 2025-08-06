@@ -1,5 +1,5 @@
-(
-cd out && awk -F, '  
+(  
+cd ${1:-out} && awk -F, '  
 FILENAME == "iterations.csv" && NR > 1 { last_iter = $0 }  
 FILENAME == "retry.csv" && NR > 1 { last_retry = $0 }  
 FILENAME == "response-time.csv" && NR > 1 { last_resp = $0 }  
@@ -7,6 +7,8 @@ END {
     # iterations.csv  
     split(last_iter, I)  
     tps = I[3]  
+    m1 = I[4]  
+    m5 = I[5]  
     txcount = I[2]  
     # retry.csv  
     split(last_retry, R)  
@@ -21,7 +23,8 @@ END {
     # calculate % retries/totaltx  
     percent = (txcount > 0 ? (retries/txcount*100) : 0)  
     # output summary  
-    printf "TPS: %8d retries: %6d retries/s: %5.1f %% ret/txs: %5.3f percentiles: 50.0%%: %5.1f 95.0%%: %5.1f 99.0%%: %5.1f 99.9%%: %5.1f\n", tps, retries, retries_sec, percent, p50, p95, p99, p999  
+    printf "TPS: %8.1f m1: %8.1f m5: %8.1f retries: %6d retries/s: %5.1f %% ret/txs: %5.3f percentiles: 50.0%%: %5.1f 95.0%%: %5.1f 99.0%%: %5.1f 99.9%%: %5.1f\n", tps, m1, m5, retries, retries_sec, percent, p50, p95, p99, p999  
 }  
 ' iterations.csv retry.csv response-time.csv  
-)
+)  
+
